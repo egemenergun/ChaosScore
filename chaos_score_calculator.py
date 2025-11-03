@@ -1,86 +1,85 @@
 import os
 
-def var_olan_ilk(yollar):
-    for p in yollar:
+def first_ok(paths):
+    for p in paths:
         if p and os.path.isdir(p):
             return p
     return None
 
-def dosya_say(klasor):
-    if not klasor or not os.path.isdir(klasor):
+def file_count(folder):
+    if not folder or not os.path.isdir(folder):
         return 0
-    sayi = 0
-    for ad in os.listdir(klasor):
-        tam = os.path.join(klasor, ad)
-        if os.path.isfile(tam):
-            sayi += 1
-    return sayi
+    c = 0
+    for name in os.listdir(folder):
+        full = os.path.join(folder, name)
+        if os.path.isfile(full):
+            c += 1
+    return c
 
-def puan_hesapla(sayi, limit):
-    if sayi <= limit:
-        return int(sayi * 30 / limit)
-    elif sayi <= 2 * limit:
-        ekstra = sayi - limit
-        return 30 + int(ekstra * 50 / limit)
-    elif sayi <= 3 * limit:
-        ekstra = sayi - 2 * limit
-        return 80 + int(ekstra * 20 / limit)
+def calc_score(count, limit):
+    if count <= limit:
+        return int(count * 30 / limit)
+    elif count <= 2 * limit:
+        extra = count - limit
+        return 30 + int(extra * 50 / limit)
+    elif count <= 3 * limit:
+        extra = count - 2 * limit
+        return 80 + int(extra * 20 / limit)
     else:
         return 100
 
-def mesaj4(toplam):
-    if toplam < 25:
-        return "Harika, neredeyse hiç kaos yok!"
-    elif toplam < 50:
-        return "Fena değil, biraz düzen iyi olabilir."
-    elif toplam < 70:
-        return "Kaos seviyesi biraz yüksek, düzen iyi olur."
+def message4(score):
+    if score < 25:
+        return "Excellent - almost no chaos."
+    elif score < 50:
+        return "Not bad - a bit of tidying could help."
+    elif score < 70:
+        return "Chaos level is a bit high - tidying would help."
     else:
-        return "Kaos seviyesi yüksek, temizlik zamanı!"
+        return "Chaos level is high - time to clean!"
 
 def main():
     home = os.path.expanduser("~")
 
-    masaustu = var_olan_ilk([os.path.join(home, "Desktop"),
-                             os.path.join(home, "Masaüstü")])
-    indirilenler = var_olan_ilk([os.path.join(home, "Downloads"),
-                                 os.path.join(home, "İndirilenler")])
-    belgeler = var_olan_ilk([os.path.join(home, "Documents"),
-                             os.path.join(home, "Belgeler")])
+    desktop = first_ok([os.path.join(home, "Desktop"),
+                        os.path.join(home, "Masaüstü")])
+    downloads = first_ok([os.path.join(home, "Downloads"),
+                          os.path.join(home, "İndirilenler")])
+    documents = first_ok([os.path.join(home, "Documents"),
+                          os.path.join(home, "Belgeler")])
 
-    # limitleri sabit değişkenler olarak tutmak okunurluğu artırır
-    M_LIMIT = 20
-    D_LIMIT = 50
-    B_LIMIT = 30
+    DESK_LIMIT = 20
+    DOWN_LIMIT = 50
+    DOC_LIMIT  = 30
 
-    m_sayi = dosya_say(masaustu)
-    d_sayi = dosya_say(indirilenler)
-    b_sayi = dosya_say(belgeler)
+    d_cnt = file_count(desktop)
+    w_cnt = file_count(downloads)
+    c_cnt = file_count(documents)
 
-    m_puan = puan_hesapla(m_sayi, M_LIMIT)
-    d_puan = puan_hesapla(d_sayi, D_LIMIT)
-    b_puan = puan_hesapla(b_sayi, B_LIMIT)
+    d_scr = calc_score(d_cnt, DESK_LIMIT)
+    w_scr = calc_score(w_cnt, DOWN_LIMIT)
+    c_scr = calc_score(c_cnt, DOC_LIMIT)
 
-    toplam = int((m_puan + d_puan + b_puan) / 3)
-    on_uzerinden = int(toplam / 10)
-    yorum = mesaj4(toplam)
+    total = int((d_scr + w_scr + c_scr) / 3)
+    out_of_10 = int(total / 10)
+    comment = message4(total)
 
     print("=== Chaos Score Calculator ===\n")
-    print("Masaüstü  :", m_sayi, "dosya ->", m_puan, "/100")
-    print("Downloads :", d_sayi, "dosya ->", d_puan, "/100")
-    print("Belgeler  :", b_sayi, "dosya ->", b_puan, "/100")
+    print("Desktop  :", d_cnt, "files ->", d_scr, "/100")
+    print("Downloads:", w_cnt, "files ->", w_scr, "/100")
+    print("Documents:", c_cnt, "files ->", c_scr, "/100")
     print("--------------------------------")
-    print("Toplam Chaos Puanı:", toplam, "/100  |  10 üzerinden:", on_uzerinden, "/10")
-    print(yorum)
+    print("Total Chaos Score:", total, "/100  |  out of 10:", out_of_10, "/10")
+    print(comment)
 
-    f = open("chaos_rapor.txt", "w", encoding="utf-8")
-    f.write("Chaos Score Raporu\n")
-    f.write("-------------------\n")
-    f.write("Masaüstü  : " + str(m_sayi) + " dosya -> " + str(m_puan) + "/100\n")
-    f.write("Downloads : " + str(d_sayi) + " dosya -> " + str(d_puan) + "/100\n")
-    f.write("Belgeler  : " + str(b_sayi) + " dosya -> " + str(b_puan) + "/100\n")
-    f.write("Toplam Chaos Puanı: " + str(toplam) + "/100  |  10 üzerinden: " + str(on_uzerinden) + "/10\n")
-    f.write(yorum + "\n")
+    f = open("chaos_report.txt", "w", encoding="utf-8")
+    f.write("Chaos Score Report\n")
+    f.write("------------------\n")
+    f.write("Desktop  : " + str(d_cnt) + " files -> " + str(d_scr) + "/100\n")
+    f.write("Downloads: " + str(w_cnt) + " files -> " + str(w_scr) + "/100\n")
+    f.write("Documents: " + str(c_cnt) + " files -> " + str(c_scr) + "/100\n")
+    f.write("Total Chaos Score: " + str(total) + "/100  |  out of 10: " + str(out_of_10) + "/10\n")
+    f.write(comment + "\n")
     f.close()
 
 if __name__ == "__main__":
